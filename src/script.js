@@ -1,5 +1,6 @@
 import "./style.css";
 import * as THREE from "three";
+import gsap from 'gsap';
 
 // Canvas
 const canvas = document.querySelector(".webgl");
@@ -29,42 +30,11 @@ scene.add(camera);
 Meshes
 */
 
-const cube1 = new THREE.Mesh(
-  new THREE.BoxGeometry(1, 1, 1),
-  new THREE.MeshNormalMaterial()
-);
-const cube2 = new THREE.Mesh(
-  new THREE.BoxGeometry(1, 1, 1),
-  new THREE.MeshNormalMaterial()
-);
-const cube3 = new THREE.Mesh(
-  new THREE.BoxGeometry(1, 1, 1),
-  new THREE.MeshNormalMaterial()
-);
-
-cube1.position.set(0, 0, 0);
-cube2.position.set(2, 2, 2);
-cube3.position.set(-1, -2, -3);
-
-const meshesGroup = new THREE.Group();
-scene.add(meshesGroup);
-meshesGroup.add(cube1, cube2, cube3);
-meshesGroup.setRotationFromAxisAngle(new THREE.Vector3(0, 1, 0), 45);
 // Default Box
-// const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
-// const boxMaterial = new THREE.MeshNormalMaterial({
-// //   color: 0xaaffaa,
-// });
-// const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
-
-// boxMesh.position.set(0,0,0);
-// boxMesh.scale.set(2,2,2);
-// //Euler Rotations
-// // mesh.rotation.set(0, Math.PI * 0.25, 0);
-// boxMesh.setRotationFromAxisAngle(new THREE.Vector3(1,1,1), 75);
-// //Quaternion Rotation
-
-// scene.add(boxMesh);
+const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+const boxMaterial = new THREE.MeshNormalMaterial();
+const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
+scene.add(boxMesh);
 
 /*
 Helpers
@@ -84,6 +54,35 @@ scene.add(axesHelpers);
 // Renderer
 const renderer = new THREE.WebGLRenderer({
   canvas: canvas,
+  antialias: true
 });
+
 renderer.setSize(sizes.width, sizes.height);
 renderer.render(scene, camera);
+
+// Start time - ThreeJs
+const clock = new THREE.Clock();
+
+/*
+Animation using GSAP
+*/
+  // Move left
+  gsap.to(boxMesh.position, {duration:1, delay:1, x:2});
+  // Move right
+  gsap.to(boxMesh.position, {duration:1, delay:2, x:0, });
+////////////////////////////////////////////////////////
+
+// Tick
+const tick = () =>  
+{
+
+  // Animation using ThreeJS clock
+  const deltaTime = clock.getElapsedTime();
+  boxMesh.rotation.set(0, 2 * deltaTime, 0);
+  
+  renderer.render(scene,camera);  
+  
+  window.requestAnimationFrame(tick);
+}
+
+tick();
