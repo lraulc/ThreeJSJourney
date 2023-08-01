@@ -21,8 +21,8 @@ const scene = new THREE.Scene();
 
 // Sizes
 const sizes = {
-  width: 800,
-  height: 800,
+  width: window.innerWidth,
+  height: window.innerHeight,
 };
 
 // Camera
@@ -48,12 +48,13 @@ scene.add(boxMesh);
 // Add camera, and DOM element - this case, canvas
 const controls = new OrbitControls(camera, canvas);
 controls.target.set(boxMesh.position.x, boxMesh.position.y, boxMesh.position.z);
-controls.zoomSpeed = 0.1;
+// controls.zoomSpeed = 0.1;
 controls.enableDamping = true;
 
 // Renderer
 const renderer = new THREE.WebGLRenderer({
   canvas: canvas,
+  antialias: true,
 });
 renderer.setSize(sizes.width, sizes.height);
 renderer.render(scene, camera);
@@ -75,14 +76,7 @@ const clock = new THREE.Clock();
 const tick = () => {
   const deltaTime = clock.getElapsedTime();
 
-  // // Update Camera
-  // const cameraSpeed = Math.PI;
-  // camera.position.set(
-  //   Math.sin(cursor.mouseX * Math.PI * 2) * cameraSpeed,
-  //   cursor.mouseY * Math.PI * 2,
-  //   Math.cos(cursor.mouseX * Math.PI * 2) * cameraSpeed
-  // );
-  // camera.lookAt(boxMesh.position);
+  boxMesh.rotation.set(2 * deltaTime, 2 * deltaTime, 2 * deltaTime);
 
   // Controls have to be updated when using damping
   controls.update();
@@ -91,3 +85,17 @@ const tick = () => {
 };
 
 tick();
+
+// Handle Window Resize
+window.addEventListener("resize", () => {
+  // Update Sizes
+  sizes.width = window.innerWidth;
+  sizes.height = window.innerHeight;
+
+  // Update Camera
+  camera.aspect = sizes.width / sizes.height;
+  camera.updateProjectionMatrix();
+
+  // Update Renderer
+  renderer.setSize(sizes.width, sizes.height);
+});
