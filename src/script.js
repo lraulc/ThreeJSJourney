@@ -56,11 +56,14 @@ const renderer = new THREE.WebGLRenderer({
   canvas: canvas,
   antialias: true,
 });
+
 renderer.setSize(sizes.width, sizes.height);
+// Update pixel ratio for other screens
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.render(scene, camera);
 
 /*******************************************
- Helpers 
+ Helpers Start
  *******************************************/
 
 const gridHelper = new THREE.GridHelper(10, 10, 0x00eeff, 0xffffff);
@@ -69,6 +72,11 @@ const helpersGroup = new THREE.Group();
 
 helpersGroup.add(gridHelper, axesHelper);
 scene.add(helpersGroup);
+
+/*******************************************
+ Helpers End
+ *******************************************/
+
 ////////////////////////////////////////////////////////////
 
 const clock = new THREE.Clock();
@@ -98,4 +106,24 @@ window.addEventListener("resize", () => {
 
   // Update Renderer
   renderer.setSize(sizes.width, sizes.height);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+});
+
+window.addEventListener("dblclick", () => {
+  const fullscreenElement =
+    document.fullscreenElement || document.webkitfullscreenElement;
+
+  if (!fullscreenElement) {
+    if (canvas.requestFullscreen) {
+      canvas.requestFullscreen();
+    } else if (canvas.webkitRequestFullscreen) {
+      canvas.webkitRequestFullscreen();
+    }
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    }
+  }
 });
