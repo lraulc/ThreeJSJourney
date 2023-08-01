@@ -25,9 +25,11 @@ const sizes = {
   height: window.innerHeight,
 };
 
-// Camera
+/*******************************************
+ Camera Start
+ *******************************************/
 const camera = new THREE.PerspectiveCamera(
-  75,
+  50,
   sizes.width / sizes.height,
   0.01,
   1000
@@ -36,31 +38,80 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.set(3, 2, 3);
 camera.lookAt(0, 0, 0);
 scene.add(camera);
+/*******************************************
+ Camera End
+ *******************************************/
 
-// Object
-const boxGeometry = new THREE.BoxGeometry();
-const boxMaterial = new THREE.MeshNormalMaterial();
-const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
-boxMesh.position.y = boxMesh.scale.y / 2;
-scene.add(boxMesh);
+/*******************************************
+ Objects Start
+ *******************************************/
+// Torus Knot
+// const torusKnot = new THREE.TorusKnotGeometry(8, 2.5, 300, 8, 2, 3);
+// const torusKnotMaterial = new THREE.MeshNormalMaterial({
+//   wireframe: true,
+// });
+// const torusKnotMesh = new THREE.Mesh(torusKnot, torusKnotMaterial);
+// torusKnotMesh.scale.set(0.1, 0.1, 0.1);
+// torusKnotMesh.position.y = torusKnotMesh.scale.y / 2;
+// scene.add(torusKnotMesh);
 
-// Camera Controls
+// Geometry Buffer
+// Basic Triangle
+const triangleGeometry = new THREE.BufferGeometry();
+// const triangleVertices = new Float32Array([0, 0, 0, 0, 1, 0, 1, 0, 0]);
+// const triangleAttributes = new THREE.BufferAttribute(triangleVertices, 3);
+// triangleGeometry.setAttribute("position", triangleAttributes);
+
+const triangleCount = 50;
+const positionArray = new Float32Array(triangleCount * 3 * 3);
+
+for (let i = 0; i < triangleCount * 3 * 3; i++) {
+  positionArray[i] = Math.random();
+}
+
+const triangleAttributes = new THREE.BufferAttribute(positionArray, 3);
+triangleGeometry.setAttribute("position", triangleAttributes);
+
+const triangleMaterial = new THREE.MeshBasicMaterial({
+  wireframe: true,
+  color: 0xff0000,
+});
+const triangleMesh = new THREE.Mesh(triangleGeometry, triangleMaterial);
+scene.add(triangleMesh);
+
+/*******************************************
+ Objects End
+ *******************************************/
+
+/*******************************************
+ Controls Start
+ *******************************************/
 // Add camera, and DOM element - this case, canvas
 const controls = new OrbitControls(camera, canvas);
-controls.target.set(boxMesh.position.x, boxMesh.position.y, boxMesh.position.z);
+controls.target = new THREE.Vector3(0, 0, 0);
 // controls.zoomSpeed = 0.1;
 controls.enableDamping = true;
+/*******************************************
+ Camera End
+ *******************************************/
 
+/*******************************************
+ Renderer Start
+ *******************************************/
 // Renderer
 const renderer = new THREE.WebGLRenderer({
   canvas: canvas,
   antialias: true,
 });
-
+renderer.setClearColor(0x0e1823, 1);
 renderer.setSize(sizes.width, sizes.height);
 // Update pixel ratio for other screens
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.render(scene, camera);
+
+/*******************************************
+ Renderer End
+ *******************************************/
 
 /*******************************************
  Helpers Start
@@ -70,7 +121,7 @@ const gridHelper = new THREE.GridHelper(10, 10, 0x00eeff, 0xffffff);
 const axesHelper = new THREE.AxesHelper(3);
 const helpersGroup = new THREE.Group();
 
-helpersGroup.add(gridHelper, axesHelper);
+helpersGroup.add(gridHelper);
 scene.add(helpersGroup);
 
 /*******************************************
@@ -84,7 +135,7 @@ const clock = new THREE.Clock();
 const tick = () => {
   const deltaTime = clock.getElapsedTime();
 
-  boxMesh.rotation.set(2 * deltaTime, 2 * deltaTime, 2 * deltaTime);
+  // torusKnotMesh.rotation.set(2 * deltaTime, 2 * deltaTime, 2 * deltaTime);
 
   // Controls have to be updated when using damping
   controls.update();
