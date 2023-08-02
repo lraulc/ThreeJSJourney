@@ -46,38 +46,12 @@ scene.add(camera);
  Objects Start
  *******************************************/
 // Torus Knot
-// const torusKnot = new THREE.TorusKnotGeometry(8, 2.5, 300, 8, 2, 3);
-// const torusKnotMaterial = new THREE.MeshNormalMaterial({
-//   wireframe: true,
-// });
-// const torusKnotMesh = new THREE.Mesh(torusKnot, torusKnotMaterial);
-// torusKnotMesh.scale.set(0.1, 0.1, 0.1);
-// torusKnotMesh.position.y = torusKnotMesh.scale.y / 2;
-// scene.add(torusKnotMesh);
-
-// Geometry Buffer
-// Basic Triangle
-const triangleGeometry = new THREE.BufferGeometry();
-// const triangleVertices = new Float32Array([0, 0, 0, 0, 1, 0, 1, 0, 0]);
-// const triangleAttributes = new THREE.BufferAttribute(triangleVertices, 3);
-// triangleGeometry.setAttribute("position", triangleAttributes);
-
-const triangleCount = 50;
-const positionArray = new Float32Array(triangleCount * 3 * 3);
-
-for (let i = 0; i < triangleCount * 3 * 3; i++) {
-  positionArray[i] = Math.random();
-}
-
-const triangleAttributes = new THREE.BufferAttribute(positionArray, 3);
-triangleGeometry.setAttribute("position", triangleAttributes);
-
-const triangleMaterial = new THREE.MeshBasicMaterial({
-  wireframe: true,
-  color: 0xff0000,
-});
-const triangleMesh = new THREE.Mesh(triangleGeometry, triangleMaterial);
-scene.add(triangleMesh);
+const torusKnot = new THREE.TorusKnotGeometry(8, 2.5, 300, 8, 2, 3);
+const torusKnotMaterial = new THREE.MeshNormalMaterial({});
+const torusKnotMesh = new THREE.Mesh(torusKnot, torusKnotMaterial);
+torusKnotMesh.scale.set(0.1, 0.1, 0.1);
+torusKnotMesh.position.y = torusKnotMesh.scale.y / 2;
+scene.add(torusKnotMesh);
 
 /*******************************************
  Objects End
@@ -121,7 +95,7 @@ const gridHelper = new THREE.GridHelper(10, 10, 0x00eeff, 0xffffff);
 const axesHelper = new THREE.AxesHelper(3);
 const helpersGroup = new THREE.Group();
 
-helpersGroup.add(gridHelper);
+helpersGroup.add(gridHelper, axesHelper);
 scene.add(helpersGroup);
 
 /*******************************************
@@ -144,6 +118,10 @@ const tick = () => {
 };
 
 tick();
+
+/*******************************************
+ Window Resize Handlers Start
+ *******************************************/
 
 // Handle Window Resize
 window.addEventListener("resize", () => {
@@ -178,3 +156,7 @@ window.addEventListener("dblclick", () => {
     }
   }
 });
+
+/*******************************************
+ Window Resize Handlers End
+ *******************************************/
