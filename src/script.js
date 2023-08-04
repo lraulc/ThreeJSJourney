@@ -39,7 +39,9 @@ scene.add(camera);
 
 // Object
 const boxGeometry = new THREE.BoxGeometry();
-const boxMaterial = new THREE.MeshNormalMaterial();
+const boxMaterial = new THREE.MeshBasicMaterial({
+  color: 0xff0000,
+});
 const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
 boxMesh.position.y = boxMesh.scale.y / 2;
 scene.add(boxMesh);
