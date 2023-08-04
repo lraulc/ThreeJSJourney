@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import typefaceFont from "./fonts/helvetiker_regular.typeface.json";
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry";
 import GUI from "lil-gui";
@@ -79,7 +78,7 @@ console.timeEnd("donuts");
 
 // Text Buffer
 const fontLoader = new FontLoader();
-fontLoader.load("/fonts/helvetiker_regular.typeface.json", (font) => {
+fontLoader.load("./fonts/helvetiker_regular.typeface.json", (font) => {
   const textGeometry = new TextGeometry("Hello! Three.js!", {
     font: font,
     size: 0.5,
