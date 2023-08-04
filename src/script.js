@@ -1,5 +1,55 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import GUI from "lil-gui";
+
+THREE.ColorManagement.enabled = true;
+
+/**
+ * DEBUG PROPERTIES
+ */
+
+const gui = new GUI();
+
+const properties = {
+  rotation: 0,
+};
+
+/**
+ * Textures
+ */
+
+const loadingManager = new THREE.LoadingManager();
+
+loadingManager.onStart = () => {
+  console.log("Loading Started");
+};
+
+loadingManager.onProgress = () => {
+  console.log("Loading");
+};
+
+loadingManager.onLoad = () => {
+  console.log("Finished Loading");
+};
+
+const textureLoader = new THREE.TextureLoader(loadingManager);
+const techoBaseColorTexture = textureLoader.load("/TechoModular_BC.png");
+const techoNormalMapTexture = textureLoader.load("/TechoModular_NRM.png");
+const techoRAOM = textureLoader.load("/TechoModular_RAOM.png");
+
+// Texture wrapping - Tiling
+techoBaseColorTexture.wrapS = THREE.RepeatWrapping;
+techoBaseColorTexture.wrapT = THREE.RepeatWrapping;
+techoBaseColorTexture.repeat.set(4, 4);
+
+// Offset
+techoBaseColorTexture.offset.set(0.5, 0.5);
+
+// Rotate Texture
+// techoBaseColorTexture.rotation = Math.PI * 0.25;
+
+techoBaseColorTexture.magFilter = THREE.NearestFilter;
+techoBaseColorTexture.generateMipmaps = true;
 
 /*
  *Cursor
@@ -33,23 +83,28 @@ const camera = new THREE.PerspectiveCamera(
   1000
 );
 
-camera.position.set(3, 2, 3);
+camera.position.set(1.5, 2, 1.5);
 camera.lookAt(0, 0, 0);
 scene.add(camera);
 
 // Object
-const boxGeometry = new THREE.BoxGeometry();
-const boxMaterial = new THREE.MeshBasicMaterial({
-  color: 0xff0000,
+const sphereGeometry = new THREE.SphereGeometry(1, 128, 128);
+const sphereMaterial = new THREE.MeshBasicMaterial({
+  map: techoBaseColorTexture,
+  toneMapped: false,
 });
-const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
-boxMesh.position.y = boxMesh.scale.y / 2;
-scene.add(boxMesh);
+const sphereMesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
+sphereMesh.position.y = sphereMesh.scale.y / 2;
+scene.add(sphereMesh);
 
 // Camera Controls
 // Add camera, and DOM element - this case, canvas
 const controls = new OrbitControls(camera, canvas);
-controls.target.set(boxMesh.position.x, boxMesh.position.y, boxMesh.position.z);
+controls.target.set(
+  sphereMesh.position.x,
+  sphereMesh.position.y,
+  sphereMesh.position.z
+);
 // controls.zoomSpeed = 0.1;
 controls.enableDamping = true;
 
@@ -62,6 +117,7 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(sizes.width, sizes.height);
 // Update pixel ratio for other screens
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
 renderer.render(scene, camera);
 
 /*******************************************
@@ -85,9 +141,6 @@ const clock = new THREE.Clock();
 
 const tick = () => {
   const deltaTime = clock.getElapsedTime();
-
-  boxMesh.rotation.set(2 * deltaTime, 2 * deltaTime, 2 * deltaTime);
-
   // Controls have to be updated when using damping
   controls.update();
   renderer.render(scene, camera);
@@ -129,3 +182,9 @@ window.addEventListener("dblclick", () => {
     }
   }
 });
+
+/**
+ * GUI
+ */
+
+gui.add(sphereMaterial, "wireframe").name("Show Wireframe?");
