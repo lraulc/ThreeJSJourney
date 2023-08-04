@@ -1,6 +1,25 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import typefaceFont from "./fonts/helvetiker_regular.typeface.json";
+import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
+import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry";
+import GUI from "lil-gui";
 
+/**
+ * GUI
+ */
+
+const gui = new GUI();
+
+/**
+ * Texture Loaders
+ */
+// Load Textures
+const loadingManager = new THREE.LoadingManager();
+const textureLoader = new THREE.TextureLoader(loadingManager);
+const randomMatcap = THREE.MathUtils.randInt(1, 8);
+const matcapTexture = textureLoader.load(`./textures/${randomMatcap}.png`);
+console.log(`Random matcap: ${randomMatcap}`);
 /*
  *Cursor
  */
@@ -32,22 +51,68 @@ const camera = new THREE.PerspectiveCamera(
   0.01,
   1000
 );
-
 camera.position.set(3, 2, 3);
-camera.lookAt(0, 0, 0);
 scene.add(camera);
 
+console.time("donuts");
 // Object
-const boxGeometry = new THREE.BoxGeometry();
-const boxMaterial = new THREE.MeshNormalMaterial();
-const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
-boxMesh.position.y = boxMesh.scale.y / 2;
-scene.add(boxMesh);
+const donutGeometry = new THREE.TorusGeometry(0.3, 0.2, 20, 45);
+const donutTextMaterial = new THREE.MeshMatcapMaterial();
+donutTextMaterial.matcap = matcapTexture;
 
+for (let i = 0; i < 400; i++) {
+  const randomVector3 = {
+    x: (Math.random() - 0.5) * 30,
+    y: (Math.random() - 0.5) * 20,
+    z: (Math.random() - 0.5) * 30,
+  };
+  const donutMesh = new THREE.Mesh(donutGeometry, donutTextMaterial);
+  donutMesh.position.set(randomVector3.x, randomVector3.y, randomVector3.z);
+  donutMesh.rotation.x = Math.random() * Math.PI;
+
+  const randomScale = (Math.random() + 0.5) * 2;
+  donutMesh.scale.set(randomScale, randomScale, randomScale);
+  scene.add(donutMesh);
+}
+
+console.timeEnd("donuts");
+
+// Text Buffer
+const fontLoader = new FontLoader();
+fontLoader.load("/fonts/helvetiker_regular.typeface.json", (font) => {
+  const textGeometry = new TextGeometry("Hello! Three.js!", {
+    font: font,
+    size: 0.5,
+    height: 0.2,
+    curveSegments: 5,
+    bevelEnabled: true,
+    bevelThickness: 0.03,
+    bevelSize: 0.02,
+    bevelOffset: 0,
+    bevelSegments: 4,
+  });
+
+  // // Hardcode Centering
+  // textGeometry.computeBoundingBox();
+  // textGeometry.translate(
+  //   -(
+  //     textGeometry.boundingBox.max.x - textGeometry.parameters.options.bevelSize
+  //   ) * 0.5,
+  //   -(
+  //     textGeometry.boundingBox.max.y - textGeometry.parameters.options.bevelSize
+  //   ) * 0.5,
+  //   -(
+  //     textGeometry.boundingBox.max.z - textGeometry.parameters.options.bevelSize
+  //   ) * 0.5
+  // );
+  textGeometry.center();
+  const textMesh = new THREE.Mesh(textGeometry, donutTextMaterial);
+  scene.add(textMesh);
+});
 // Camera Controls
 // Add camera, and DOM element - this case, canvas
 const controls = new OrbitControls(camera, canvas);
-controls.target.set(boxMesh.position.x, boxMesh.position.y, boxMesh.position.z);
+controls.target.set(0, 0, 0);
 // controls.zoomSpeed = 0.1;
 controls.enableDamping = true;
 
@@ -70,9 +135,8 @@ const gridHelper = new THREE.GridHelper(10, 10, 0x00eeff, 0xffffff);
 const axesHelper = new THREE.AxesHelper(3);
 const helpersGroup = new THREE.Group();
 
-helpersGroup.add(gridHelper, axesHelper);
+// helpersGroup.add(axesHelper);
 scene.add(helpersGroup);
-
 /*******************************************
  Helpers End
  *******************************************/
@@ -83,8 +147,6 @@ const clock = new THREE.Clock();
 
 const tick = () => {
   const deltaTime = clock.getElapsedTime();
-
-  boxMesh.rotation.set(2 * deltaTime, 2 * deltaTime, 2 * deltaTime);
 
   // Controls have to be updated when using damping
   controls.update();
