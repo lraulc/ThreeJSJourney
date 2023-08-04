@@ -1,5 +1,23 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import GUI from "lil-gui";
+import { gsap } from "gsap";
+
+/**
+ * Debug GUI Init
+ */
+const gui = new GUI();
+const parameters = {
+  torusColor: 0x66eeaa,
+  tubeSegments: 300,
+  // Function as a button in the UI
+  spin: () => {
+    gsap.to(torusKnotMesh.rotation, {
+      duration: 1,
+      y: torusKnotMesh.rotation.y + Math.PI * 2,
+    });
+  },
+};
 
 /*
  *Cursor
@@ -38,24 +56,31 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.set(3, 2, 3);
 camera.lookAt(0, 0, 0);
 scene.add(camera);
-/*******************************************
- Camera End
- *******************************************/
+
+/*******************************************/
 
 /*******************************************
  Objects Start
  *******************************************/
 // Torus Knot
-const torusKnot = new THREE.TorusKnotGeometry(8, 2.5, 300, 8, 2, 3);
-const torusKnotMaterial = new THREE.MeshNormalMaterial({});
-const torusKnotMesh = new THREE.Mesh(torusKnot, torusKnotMaterial);
+const torusKnotGeometry = new THREE.TorusKnotGeometry(
+  8,
+  2.5,
+  parameters.tubeSegments,
+  100,
+  2,
+  3
+);
+const torusKnotMaterial = new THREE.MeshBasicMaterial({
+  color: parameters.torusColor,
+});
+const torusKnotMesh = new THREE.Mesh(torusKnotGeometry, torusKnotMaterial);
 torusKnotMesh.scale.set(0.1, 0.1, 0.1);
+torusKnotMesh.rotation.set(0, 45, 0);
 torusKnotMesh.position.y = torusKnotMesh.scale.y / 2;
 scene.add(torusKnotMesh);
 
-/*******************************************
- Objects End
- *******************************************/
+/*******************************************/
 
 /*******************************************
  Controls Start
@@ -63,29 +88,23 @@ scene.add(torusKnotMesh);
 // Add camera, and DOM element - this case, canvas
 const controls = new OrbitControls(camera, canvas);
 controls.target = new THREE.Vector3(0, 0, 0);
-// controls.zoomSpeed = 0.1;
 controls.enableDamping = true;
-/*******************************************
- Camera End
- *******************************************/
+
+/*******************************************/
 
 /*******************************************
  Renderer Start
  *******************************************/
-// Renderer
 const renderer = new THREE.WebGLRenderer({
   canvas: canvas,
   antialias: true,
 });
 renderer.setClearColor(0x0e1823, 1);
 renderer.setSize(sizes.width, sizes.height);
-// Update pixel ratio for other screens
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.render(scene, camera);
 
-/*******************************************
- Renderer End
- *******************************************/
+/*******************************************/
 
 /*******************************************
  Helpers Start
@@ -98,18 +117,12 @@ const helpersGroup = new THREE.Group();
 helpersGroup.add(gridHelper, axesHelper);
 scene.add(helpersGroup);
 
-/*******************************************
- Helpers End
- *******************************************/
-
-////////////////////////////////////////////////////////////
+/*******************************************/
 
 const clock = new THREE.Clock();
 
 const tick = () => {
   const deltaTime = clock.getElapsedTime();
-
-  // torusKnotMesh.rotation.set(2 * deltaTime, 2 * deltaTime, 2 * deltaTime);
 
   // Controls have to be updated when using damping
   controls.update();
@@ -118,6 +131,32 @@ const tick = () => {
 };
 
 tick();
+
+/*******************************************
+ Debug GUI Handlers Start
+ *******************************************/
+
+gui.add(torusKnotMesh.position, "y", 0, 10).name("Y position");
+gui.add(torusKnotMesh, "visible").name("Visibility");
+gui.add(torusKnotMaterial, "wireframe").name("Wireframe?");
+
+// Verision using parameters for Color
+gui
+  .addColor(parameters, "torusColor")
+  .name("Color")
+  .onChange(() => {
+    torusKnotMaterial.color.set(parameters.torusColor);
+  });
+
+// Buttons
+gui.add(parameters, "spin").name("Spin Animation");
+
+gui.add(parameters, "tubeSegments", 10, 300, 10).name("Segments");
+
+// Version for lil-gui - For Color
+// gui.addColor(torusKnotMaterial, "color").name("Torus Color");
+
+/*******************************************/
 
 /*******************************************
  Window Resize Handlers Start
@@ -156,7 +195,4 @@ window.addEventListener("dblclick", () => {
     }
   }
 });
-
-/*******************************************
- Window Resize Handlers End
- *******************************************/
+/*******************************************/
